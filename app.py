@@ -1,6 +1,6 @@
+# app.py
 from flask import Flask, jsonify, request, render_template
-import psycopg2
-import psycopg2.extras # Helps with dictionary cursors
+import pyodbc
 import random
 from config import get_connection_string
 
@@ -17,25 +17,15 @@ def generate_paper():
     medium_count = int(request.args.get('medium', default=1))
     hard_count = int(request.args.get('hard', default=1))
 
-    conn = psycopg2.connect(get_connection_string())
-    # RealDictCursor automatically converts rows into Python dictionaries!
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) 
+    conn = pyodbc.connect(get_connection_string())
+    cursor = conn.cursor()
     final_paper = []
     
     def fetch_questions(difficulty, count):
         if count == 0: return []
-        
-        # PostgreSQL uses %s for parameters instead of ?
-        query = """
-            SELECT q.* 
-            FROM Questions q
-            JOIN Subjects s ON q.SubjectID = s.SubjectID
-            WHERE s.SubjectName = %s AND q.Difficulty = %s
-        """
-        cursor.execute(query, (subject, difficulty))
-        questions = cursor.fetchall()
-        
-        # RealDictCursor returns them as dicts, so random.sample works perfectly
+        cursor.execute("SELECT * FROM Questions WHERE Subject = ? AND Difficulty = ?", (subject, difficulty))
+        columns = [column[0] for column in cursor.description]
+        questions = [dict(zip(columns, row)) for row in cursor.fetchall()]
         return random.sample(questions, count) if len(questions) > count else questions
 
     final_paper.extend(fetch_questions("Easy", easy_count))
