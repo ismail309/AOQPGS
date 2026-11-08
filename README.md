@@ -76,7 +76,9 @@ uv run python app.py
 6. Open in Browser
 Navigate to http://127.0.0.1:5000 in your web browser. Select a subject, choose the number of questions, and click Generate Exam.
 
-👨‍💻 Author
-Ismail
-Data Engineer
-[LinkedIn](https://www.linkedin.com/in/mohammad-ismail-382087105/) | [GitHub](https://github.com/ismail309)
+## 👨‍💻 Author
+**Muhammad Ismail** 
+*Data Engineer*
+
+* 🔗 [LinkedIn Profile](https://www.linkedin.com/in/mohammad-ismail-382087105/)
+* 💻 [GitHub Profile](https://github.com/ismail309)
