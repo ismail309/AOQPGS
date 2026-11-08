@@ -5,22 +5,25 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-AOQPGS is a full-stack web application designed to automate the process of generating examination papers. It allows educators to dynamically create randomized question papers based on subject, difficulty, and custom criteria, eliminating manual effort and ensuring fair, unique exams for every student.
+## 📌 Project Overview
+AOQPGS is a **full-stack web application and automated data pipeline** built with Python, Flask, and PostgreSQL. It dynamically generates randomized examination papers by querying a relational database based on user-defined subjects and difficulty levels. This project demonstrates enterprise-level database engineering, backend API development, and frontend data visualization.
 
 ## 🚀 Features
-
-*   **Dynamic Question Generation:** Randomly selects questions from a centralized question bank based on user-defined difficulty levels (Easy, Medium, Hard).
-*   **Answer Key Toggle:** A secure frontend toggle that allows teachers to reveal or hide the correct answers instantly.
-*   **Relational Database:** Built on PostgreSQL to enforce strict data integrity (Foreign Keys, Check Constraints).
-*   **Modern Python Tooling:** Uses `uv` for lightning-fast dependency management and virtual environments.
-*   **Secure Configuration:** Database credentials are isolated and ignored by Git to prevent leaks.
+- **Automated Paper Generation** using dynamic SQL queries and Python's `random` module
+- **Relational Database Storage** with PostgreSQL (enforcing data integrity and foreign keys)
+- **Interactive UI** with a secure "Show Answer Key" toggle
+- **Database Deployment Scripts** for version-controlled schema management
+- **Modular Design** separating frontend logic, backend routes, and database scripts
+- **Modern Python Tooling** using `uv` for dependency management
 
 ## 🛠️ Tech Stack
+- **Python 3.x** (Backend logic)
+- **Flask** (Web framework & API routing)
+- **PostgreSQL** (Relational database)
+- **psycopg2** (Python driver for PostgreSQL)
+- **HTML/CSS/JavaScript** (Frontend interface)
+- **uv** (Fast Python package manager)
 
-*   **Backend:** Python, Flask
-*   **Database:** PostgreSQL
-*   **Frontend:** HTML5, CSS3, Vanilla JavaScript (Fetch API)
-*   **Database Driver:** `psycopg2`
 
 ## 📂 Project Structure
 
@@ -44,41 +47,53 @@ AOQPGS/
 └── static/                 # CSS & JavaScript Frontend
     ├── script.js           
     └── style.css
+```
 
-💻 How to Run Locally
-1. Clone the repository
+## 💻 How to Run Locally
+### 1️⃣ Clone the Repository
+```sh
 git clone https://github.com/ismail309/AOQPGS.git
 cd AOQPGS
-
-2. Set up the environment (using uv)
-
+```
+### 2️⃣ Set up the environment (using uv)
+```sh
 # Create virtual environment
 uv venv
 
 # Install dependencies
 uv pip install -r requirements.txt
-3. Configure the Database
+```
+
+## 🕷️ How to Use
+### 1️⃣ Configure the Database
 Ensure PostgreSQL is running on your machine.
-
 Create a database named aoqpgs_db.
-
 Duplicate config.example.py and rename it to config.py.
-
 Open config.py and update the DB_PASS with your PostgreSQL password.
 
-4. Deploy the Database Schema
+### 2️⃣ Deploy the Database Schema
 Run the automated deployment script to create the tables and insert the initial dummy questions:
+```sh
 uv run python database/deploy.py
+```
 
-5. Start the Web Server
+### 2️⃣ Run the Web Application
+```sh
 uv run python app.py
+```
+Navigate to http://127.0.0.1:5000 in your web browser.
 
-6. Open in Browser
-Navigate to http://127.0.0.1:5000 in your web browser. Select a subject, choose the number of questions, and click Generate Exam.
+## 🔥 Future Enhancements
+- 📡 User Authentication (So only teachers can generate papers)
+- 📊 PDF Export (Download the generated paper and answer key as a PDF)
+- 🕵️ Admin Dashboard (Create and edit questions directly from the UI)
 
-## 👨‍💻 Author
-**Muhammad Ismail** 
-*Data Engineer*
+## 🤝 Contribution
+Feel free to fork this repository and submit pull requests! Contributions are welcome.
 
+## 📜 License
+This project is licensed under the MIT License.
+ 
+For queries or collaborations, reach out to me at:
 * 🔗 [LinkedIn Profile](https://www.linkedin.com/in/mohammad-ismail-382087105/)
 * 💻 [GitHub Profile](https://github.com/ismail309)
