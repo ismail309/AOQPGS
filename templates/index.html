@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AOQPGS - Automated Online Question Paper Generation System</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; font-size: 14px; margin-bottom: 30px; }
+        .controls { display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap; }
+        .input-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; color: #34495e; }
+        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; align-self: flex-end; }
+        button:hover { background-color: #2980b9; }
+        .question-card { background: #ecf0f1; padding: 15px; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #3498db; }
+        .question-text { font-weight: bold; margin-bottom: 10px; }
+        .options { list-style-type: none; padding: 0; }
+        .options li { margin-bottom: 5px; }
+        #loading { text-align: center; font-weight: bold; color: #e67e22; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AOQPGS</h1>
+        <div class="subtitle">Automated Online Question Paper Generation System</div>
+        
+        <div class="controls">
+            <div class="input-group">
+                <label>Subject</label>
+                <select id="subject">
+                    <option value="Python">Python</option>
+                    <option value="SQL">SQL</option>
+                    <option value="Data Engineering">Data Engineering</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Easy Qs</label>
+                <input type="number" id="easy" value="1" min="0">
+            </div>
+            <div class="input-group">
+                <label>Medium Qs</label>
+                <input type="number" id="medium" value="1" min="0">
+            </div>
+            <div class="input-group">
+                <label>Hard Qs</label>
+                <input type="number" id="hard" value="1" min="0">
+            </div>
+            <button onclick="generatePaper()">Generate Exam</button>
+            <!-- Add this button next to Generate Exam -->
+            <button onclick="toggleAnswers()" id="toggle-btn" style="display:none; background-color: #27ae60;">Show Answer Key</button>
+        </div>
+
+        <div id="loading">Generating secure paper... Please wait.</div>
+        <div id="paper-container"></div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

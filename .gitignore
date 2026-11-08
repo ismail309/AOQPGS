@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+env/
+
+# Environment Variables / Secrets
+config.py
+
+# OS Files
+.DS_Store
+Thumbs.db
