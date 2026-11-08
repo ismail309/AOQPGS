@@ -20,14 +20,6 @@ async function generatePaper() {
 
         loading.style.display = 'none';
 
-         // NEW: Check if the response is a 404 (No questions found)
-        if (response.status === 404) {
-            loading.style.display = 'none';
-            container.innerHTML = '<p style="color:#e67e22; text-align:center; font-weight:bold;">No questions found in the database for this subject/difficulty combination. Please choose a different criteria or add more questions.</p>';
-            return;
-        }
-
-
         if (data.total_questions === 0) {
             container.innerHTML = '<p style="color:red; text-align:center;">No questions found for this criteria.</p>';
             return;
@@ -42,17 +34,18 @@ async function generatePaper() {
             const card = document.createElement('div');
             card.className = 'question-card';
             card.innerHTML = `
-            <div class="question-text">Q${index + 1}. ${q.questiontext} <span style="font-size:12px; color:gray;">(${q.difficulty})</span></div>
-            <ul class="options">
-                <li>A) ${q.optiona}</li>
-                <li>B) ${q.optionb}</li>
-                <li>C) ${q.optionc}</li>
-                <li>D) ${q.optiond}</li>
-            </ul>
-            <div class="answer-key" style="display:none; margin-top:10px; color:#27ae60; font-weight:bold;">
-                Correct Answer: ${q.correctanswer}
-            </div>
-        `;
+                <div class="question-text">Q${index + 1}. ${q.QuestionText} <span style="font-size:12px; color:gray;">(${q.Difficulty})</span></div>
+                <ul class="options">
+                    <li>A) ${q.OptionA}</li>
+                    <li>B) ${q.OptionB}</li>
+                    <li>C) ${q.OptionC}</li>
+                    <li>D) ${q.OptionD}</li>
+                </ul>
+                <!-- NEW: Hidden answer key -->
+                <div class="answer-key" style="display:none; margin-top:10px; color:#27ae60; font-weight:bold;">
+                    Correct Answer: ${q.CorrectAnswer}
+                </div>
+            `;
             container.appendChild(card);
         });
 
