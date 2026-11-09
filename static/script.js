@@ -16,6 +16,14 @@ async function generatePaper() {
 
     try {
         const response = await fetch(`/generate?subject=${subject}&easy=${easy}&medium=${medium}&hard=${hard}`);
+
+         // NEW: Check if the response is a 404 (No questions found)
+        if (response.status === 404) {
+            loading.style.display = 'none';
+            container.innerHTML = '<p style="color:#e67e22; text-align:center; font-weight:bold;">No questions found in the database for this subject/difficulty combination. Please choose a different criteria or add more questions.</p>';
+            return;
+        }
+        
         const data = await response.json();
 
         loading.style.display = 'none';
