@@ -6,87 +6,99 @@
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## 📌 Project Overview
-AOQPGS is a **full-stack web application and automated data pipeline** built with Python, Flask, and PostgreSQL. It dynamically generates randomized examination papers by querying a relational database based on user-defined subjects and difficulty levels. This project demonstrates enterprise-level database engineering, backend API development, and frontend data visualization.
+AOQPGS is a **modern, decoupled full-stack web application** designed to automate the process of generating examination papers. It allows educators to dynamically create randomized question papers based on subject and difficulty criteria.
+
+This project demonstrates an enterprise-grade architecture, featuring a **React** frontend, a **FastAPI** backend, a **PostgreSQL** database, and an automated **Python-based database deployment tool** that migrates SQL scripts directly from GitHub.
 
 ## 🚀 Features
-- **Automated Paper Generation** using dynamic SQL queries and Python's `random` module
-- **Relational Database Storage** with PostgreSQL (enforcing data integrity and foreign keys)
-- **Interactive UI** with a secure "Show Answer Key" toggle
-- **Database Deployment Scripts** for version-controlled schema management
-- **Modular Design** separating frontend logic, backend routes, and database scripts
-- **Modern Python Tooling** using `uv` for dependency management
+- **Automated Paper Generation:** Dynamically queries the PostgreSQL database and randomly selects questions based on user-defined difficulty levels.
+- **Decoupled Architecture:** Separate React frontend and FastAPI backend communicating via a REST API.
+- **Database Migration Tool:** A custom Python tool (`db_deploy`) that fetches SQL scripts from the GitHub `dev` branch and applies them to the database in sequence, tracking executed scripts in an `alters` table.
+- **Stored Procedures:** Complex CRUD operations handled at the database level using PostgreSQL functions.
+- **Modern Python Tooling:** Uses `uv` for lightning-fast dependency management.
 
 ## 🛠️ Tech Stack
-- **Python 3.x** (Backend logic)
-- **Flask** (Web framework & API routing)
-- **PostgreSQL** (Relational database)
-- **psycopg2** (Python driver for PostgreSQL)
-- **HTML/CSS/JavaScript** (Frontend interface)
-- **uv** (Fast Python package manager)
-
+- **Frontend:** React (via Vite), HTML/CSS, JavaScript
+- **Backend:** Python, FastAPI, Uvicorn
+- **Database:** PostgreSQL
+- **Database Driver:** `psycopg` (v3)
+- **Package Managers:** `npm` (Frontend), `uv` (Backend)
 
 ## 📂 Project Structure
-
 ```text
 AOQPGS/
 │
-├── app.py                  # Main Flask application & API routes
+├── frontend/               # React Frontend (Vite)
+│   ├── src/
+│   │   ├── App.jsx         # Main UI logic
+│   │   └── App.css         # Styling
+│   └── package.json        
+│
+├── db_deploy/              # Database Engineering Tool
+│   └── deploy.py           # Fetches SQL from GitHub & deploys
+│
+├── sql/                    # SQL Scripts
+│   ├── alters/             # Schema changes (run once)
+│   │   └── AOQPGS-01-Initilize-database/
+│   │       ├── 001_schema.sql
+│   │       └── 002_seed_data.sql
+│   └── stored_procedures/  # Business logic (run every deployment)
+│       └── sp_manage_questions.sql
+│
+├── main.py                 # FastAPI Application & API routes
 ├── config.py               # Database credentials (ignored by Git)
 ├── config.example.py       # Template for database credentials
-├── pyproject.toml          # Python project configuration (uv)
 ├── requirements.txt        # Python dependencies
-│
-├── database/               # Database Engineering Scripts
-│   ├── 01_schema.sql       # Table creation (DDL)
-│   ├── 02_seed_data.sql    # Initial dummy data
-│   └── deploy.py           # Automated database deployment script
-│
-├── templates/              # HTML Frontend
-│   └── index.html          
-│
-└── static/                 # CSS & JavaScript Frontend
-    ├── script.js           
-    └── style.css
+└── pyproject.toml          # uv project configuration
 ```
 
 ## 💻 How to Run Locally
-### 1️⃣ Clone the Repository
-```sh
-git clone https://github.com/ismail309/AOQPGS.git
-cd AOQPGS
-```
-### 2️⃣ Set up the environment (using uv)
-```sh
-# Create virtual environment
-uv venv
+### 1️⃣ Prerequisites
+Ensure you have the following installed on your machine:
 
-# Install dependencies
-uv pip install -r requirements.txt
-```
+Python 3.10+
+PostgreSQL (running on port 5432)
+Node.js & npm (for the React frontend)
+uv (Python package manager)
 
-## 🕷️ How to Use
-### 1️⃣ Configure the Database
-Ensure PostgreSQL is running on your machine.
-Create a database named aoqpgs_db.
+### 2️⃣ Set Up the Database
+Create a PostgreSQL database named aoqpgs_db.
 Duplicate config.example.py and rename it to config.py.
 Open config.py and update the DB_PASS with your PostgreSQL password.
 
-### 2️⃣ Deploy the Database Schema
-Run the automated deployment script to create the tables and insert the initial dummy questions:
+### 3️⃣ Run the Database Migration Tool
+This tool will fetch the latest SQL scripts from the GitHub dev branch and execute them:
 ```sh
-uv run python database/deploy.py
+# Create virtual environment and install dependencies
+uv venv
+uv pip install -r requirements.txt
+
+# Run the deployment tool
+uv run python db_deploy/deploy.py
 ```
 
-### 2️⃣ Run the Web Application
+### 4️⃣ Start the FastAPI Backend
+Open a terminal and run:
 ```sh
-uv run python app.py
+uv run uvicorn main:app --reload
 ```
-Navigate to http://127.0.0.1:5000 in your web browser.
+The API will run at http://127.0.0.1:8000
+You can view the interactive Swagger API documentation at http://127.0.0.1:8000/docs
+
+### 5️⃣ Start the React Frontend
+Open a new terminal window, navigate to the frontend folder, and run:
+```sh
+cd frontend
+npm install
+npm run dev
+```
+The React app will run at http://localhost:5173
 
 ## 🔥 Future Enhancements
-- 📡 User Authentication (So only teachers can generate papers)
-- 📊 PDF Export (Download the generated paper and answer key as a PDF)
-- 🕵️ Admin Dashboard (Create and edit questions directly from the UI)
+- 📝 Admin Dashboard: A React form to add/edit questions directly from the UI.
+- 🔐 User Authentication: Restrict paper generation to logged-in teachers.
+- 📄 PDF Export: Export the generated paper as a printable PDF.
+- 📱 Mobile App: React Native app communicating with the same FastAPI backend
 
 ## 🤝 Contribution
 Feel free to fork this repository and submit pull requests! Contributions are welcome.
