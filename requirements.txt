@@ -1,2 +1,4 @@
-Flask
-pyodbc
+fastapi
+uvicorn
+psycopg[binary,pool]
+python-multipart
