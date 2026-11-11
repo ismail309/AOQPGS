@@ -1,7 +1,7 @@
 # db_deploy/deploy.py
 import os
 import re
-import psycopg2
+import psycopg
 import sys
 import urllib.request
 import zipfile
@@ -58,7 +58,7 @@ def fetch_from_github():
         sys.exit(1)
 
 def get_db_connection():
-    return psycopg2.connect(get_migration_connection_string())
+    return psycopg.connect(get_migration_connection_string())
 
 def setup_tracking_table(cursor):
     cursor.execute('''
