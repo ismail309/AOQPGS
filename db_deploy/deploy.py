@@ -1,7 +1,7 @@
 # db_deploy/deploy.py
 import os
 import re
-import psycopg2
+import psycopg
 import sys
 import urllib.request
 import zipfile
@@ -9,44 +9,44 @@ import shutil
 
 # Import your database credentials
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import get_connection_string
+from config import get_migration_connection_string
 
 # --- GITHUB CONFIGURATION ---
-GITHUB_REPO = "ismail309/AOQPGS"
+GITHUB_REPO = "ismail309/paperpilot"
 GITHUB_BRANCH = "dev"
 # ----------------------------
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SQL_DIR = os.path.join(BASE_DIR, 'sql')
 TEMP_DIR = os.path.join(BASE_DIR, 'db_deploy', 'temp_fetch')
 ALTERS_DIR = os.path.join(TEMP_DIR, 'sql', 'alters')
+UTILS_DIR = os.path.join(SQL_DIR, 'utilities')
 PROCS_DIR = os.path.join(TEMP_DIR, 'sql', 'stored_procedures')
 
 def fetch_from_github():
     """Downloads the latest SQL folder from the dev branch on GitHub."""
     print(f"⬇️ Fetching latest SQL scripts from {GITHUB_REPO} ({GITHUB_BRANCH} branch)...")
     
-    # Clean up old temp folder if it exists
     if os.path.exists(TEMP_DIR):
         shutil.rmtree(TEMP_DIR)
     os.makedirs(TEMP_DIR)
 
-    # GitHub API URL to download the repo as a zip file
     zip_url = f"https://github.com/{GITHUB_REPO}/archive/refs/heads/{GITHUB_BRANCH}.zip"
     zip_path = os.path.join(TEMP_DIR, "repo.zip")
 
     try:
         urllib.request.urlretrieve(zip_url, zip_path)
         
-        # Extract the zip file
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(TEMP_DIR)
         
-        # GitHub extracts into a folder named like "AOQPGS-dev"
-        # We need to find that folder and point our paths to the SQL folder inside it
-        extracted_folder = os.path.join(TEMP_DIR, f"AOQPGS-{GITHUB_BRANCH}")
+        # DYNAMIC: Extract just the repo name (e.g., "ismail309/paperpilot" -> "paperpilot")
+        repo_name = GITHUB_REPO.split('/')[-1]
+        extracted_folder = os.path.join(TEMP_DIR, f"{repo_name}-{GITHUB_BRANCH}")
         
-        global ALTERS_DIR, PROCS_DIR
+        global ALTERS_DIR, UTILS_DIR, PROCS_DIR
         ALTERS_DIR = os.path.join(extracted_folder, 'sql', 'alters')
+        UTILS_DIR = os.path.join(extracted_folder, 'sql', 'utilities')
         PROCS_DIR = os.path.join(extracted_folder, 'sql', 'stored_procedures')
         
         print("✅ Fetch successful.")
@@ -55,7 +55,7 @@ def fetch_from_github():
         sys.exit(1)
 
 def get_db_connection():
-    return psycopg2.connect(get_connection_string())
+    return psycopg.connect(get_migration_connection_string())
 
 def setup_tracking_table(cursor):
     cursor.execute('''
@@ -120,6 +120,23 @@ def run_alter_folders(conn, cursor):
                 print(f"❌ Error executing {file}: {e}")
                 sys.exit(1)
 
+def run_utilities(conn, cursor):
+    if not os.path.exists(UTILS_DIR): return
+    files = sorted([f for f in os.listdir(UTILS_DIR) if f.endswith('.sql')])
+    if not files: return
+
+    print("\n🛠️ Updating Utility Functions...")
+    for filename in files:
+        print(f"   -> Executing {filename}...")
+        filepath = os.path.join(UTILS_DIR, filename)
+        with open(filepath, 'r', encoding='utf-8') as f:
+            try:
+                cursor.execute(f.read())
+            except Exception as e:
+                conn.rollback()
+                print(f"❌ Error in utility {filename}: {e}")
+                sys.exit(1)
+
 def run_stored_procedures(conn, cursor):
     if not os.path.exists(PROCS_DIR): return
     files = sorted([f for f in os.listdir(PROCS_DIR) if f.endswith('.sql')])
@@ -138,7 +155,7 @@ def run_stored_procedures(conn, cursor):
                 sys.exit(1)
 
 def main():
-    print("=== AOQPGS DB Deployment ===")
+    print("=== PAPERPILOT DB Deployment ===")
     
     # 1. Fetch latest code from GitHub Dev branch
     fetch_from_github()
@@ -149,11 +166,25 @@ def main():
         conn.autocommit = False 
         cursor = conn.cursor()
 
+        # 1. Setup Tracking Table
         setup_tracking_table(cursor)
         conn.commit()
 
+        # 2. Run Alters (Only once per folder)
         run_alter_folders(conn, cursor)
+
+        # 3. Run Utilities (Every time, before procs)
+        run_utilities(conn, cursor)
+
+        # 4. Run Stored Procedures (Every time)
         run_stored_procedures(conn, cursor)
+
+        # 5. Grant permissions on all newly created tables
+        print("\n🔐 Granting application user permissions...")
+        cursor.execute("""
+            GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO paperpilot_app;
+            GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO paperpilot_app;
+        """)
         conn.commit()
 
         print("\n🎉 Deployment completed successfully!")
