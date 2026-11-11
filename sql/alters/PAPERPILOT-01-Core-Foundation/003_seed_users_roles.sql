@@ -5,9 +5,9 @@
 -- When we build FastAPI auth, we will use real Argon2id hashes.
 
 INSERT INTO users (act_id, sta_id, first_name, last_name, email, password_hash) VALUES
-(2, 1, 'Ali', 'Khan', 'ali@pgc.edu.pk', 'hashed_password_123'),
-(2, 1, 'Sara', 'Ahmed', 'sara@pgc.edu.pk', 'hashed_password_123'),
-(2, 1, 'Usman', 'Raza', 'usman@pgc.edu.pk', 'hashed_password_123')
+(2, 1, 'Ali', 'Khan', 'ali@pgc.edu.pk', '$argon2id$v=19$m=65536,t=3,p=4$HcqI4EtNvhVXyVDMUhiKUw$hRJOspd3WiSNQF96raeZoMDaAyp2XZzyTq5Ii6ahf3Q'),
+(2, 1, 'Sara', 'Ahmed', 'sara@pgc.edu.pk', '$argon2id$v=19$m=65536,t=3,p=4$HcqI4EtNvhVXyVDMUhiKUw$hRJOspd3WiSNQF96raeZoMDaAyp2XZzyTq5Ii6ahf3Q'),
+(2, 1, 'Usman', 'Raza', 'usman@pgc.edu.pk', '$argon2id$v=19$m=65536,t=3,p=4$HcqI4EtNvhVXyVDMUhiKUw$hRJOspd3WiSNQF96raeZoMDaAyp2XZzyTq5Ii6ahf3Q')
 ON CONFLICT (email) DO NOTHING;
 
 -- ==========================================

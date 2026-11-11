@@ -63,8 +63,24 @@ def bootstrap_database():
         cursor = conn.cursor()
         
         cursor.execute("ALTER SCHEMA public OWNER TO paperpilot_db_migrator;")
-        cursor.execute("GRANT CONNECT ON DATABASE paperpilot TO paperpilot_app;")
+        # --- ADD THESE NEW PERMISSIONS HERE ---
+        print("Granting schema access and future table privileges...")
+        
+        # 1. Allow the app user to use the schema
         cursor.execute("GRANT USAGE ON SCHEMA public TO paperpilot_app;")
+        cursor.execute("GRANT CONNECT ON DATABASE paperpilot TO paperpilot_app;")
+
+        # 2. Set default privileges for FUTURE tables created by the migrator
+        cursor.execute("""
+            ALTER DEFAULT PRIVILEGES FOR ROLE paperpilot_db_migrator IN SCHEMA public 
+            GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO paperpilot_app;
+        """)
+        
+        cursor.execute("""
+            ALTER DEFAULT PRIVILEGES FOR ROLE paperpilot_db_migrator IN SCHEMA public 
+            GRANT USAGE, SELECT ON SEQUENCES TO paperpilot_app;
+        """)
+        # --------------------------------------
 
         print("✅ Bootstrap successful! You can now run `uv run python db_deploy/deploy.py`")
         conn.close()

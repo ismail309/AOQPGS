@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api import dashboard as dashboard_router
+from backend.api import auth as auth_router
 
 app = FastAPI(
     title="PaperPilot API",
@@ -18,8 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include the dashboard router under /api/v1
-app.include_router(dashboard_router.router, prefix="/api/v1")
+# Include routers
+app.include_router(auth_router.router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(dashboard_router.router, prefix="/api/v1", tags=["Dashboard"])
 
 @app.get("/")
 def health_check():

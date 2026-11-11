@@ -179,6 +179,14 @@ def main():
         # 4. Run Stored Procedures (Every time)
         run_stored_procedures(conn, cursor)
 
+        # 5. Grant permissions on all newly created tables
+        print("\n🔐 Granting application user permissions...")
+        cursor.execute("""
+            GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO paperpilot_app;
+            GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO paperpilot_app;
+        """)
+        conn.commit()
+
         print("\n🎉 Deployment completed successfully!")
         cursor.close()
         conn.close()
