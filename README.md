@@ -1,4 +1,4 @@
-# AOQPGS - Automated Online Question Paper Generation System
+# PaperPilot
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Flask](https://img.shields.io/badge/Flask-3.0.0-green)
@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## 📌 Project Overview
-AOQPGS is a **multi-tenant, cloud-based Examination and Question Bank Management System**. It is designed for independent teachers, schools, colleges, universities, and educational organizations to manage question banks, prepare examination papers, assign exams to students, and analyze results.
+PaperPilot is a **multi-tenant, cloud-based Examination and Question Bank Management System**. It is designed for independent teachers, schools, colleges, universities, and educational organizations to manage question banks, prepare examination papers, assign exams to students, and analyze results.
 
 The platform supports multiple account types (Individual, Organisation, and Platform Admin) and handles complex scenarios like multi-campus organizations, cross-campus question sharing, and immutable historical exam snapshots.
 
