@@ -6,36 +6,86 @@
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## 📌 Project Overview
-AOQPGS is a **modern, decoupled full-stack web application** designed to automate the process of generating examination papers. It allows educators to dynamically create randomized question papers based on subject and difficulty criteria.
+AOQPGS is a **multi-tenant, cloud-based Examination and Question Bank Management System**. It is designed for independent teachers, schools, colleges, universities, and educational organizations to manage question banks, prepare examination papers, assign exams to students, and analyze results.
 
-This project demonstrates an enterprise-grade architecture, featuring a **React** frontend, a **FastAPI** backend, a **PostgreSQL** database, and an automated **Python-based database deployment tool** that migrates SQL scripts directly from GitHub.
+The platform supports multiple account types (Individual, Organisation, and Platform Admin) and handles complex scenarios like multi-campus organizations, cross-campus question sharing, and immutable historical exam snapshots.
 
-## 🚀 Features
-- **Automated Paper Generation:** Dynamically queries the PostgreSQL database and randomly selects questions based on user-defined difficulty levels.
-- **Decoupled Architecture:** Separate React frontend and FastAPI backend communicating via a REST API.
-- **Database Migration Tool:** A custom Python tool (`db_deploy`) that fetches SQL scripts from the GitHub `dev` branch and applies them to the database in sequence, tracking executed scripts in an `alters` table.
-- **Stored Procedures:** Complex CRUD operations handled at the database level using PostgreSQL functions.
-- **Modern Python Tooling:** Uses `uv` for lightning-fast dependency management.
+## 🏗️ Core Architecture Principles
+- **Modular Monolith:** Built as a single FastAPI application divided into logical modules (Auth, Orgs, Question Bank, Exams, Grading) rather than premature microservices.
+- **Strict Tenant Isolation:** Ensures data from one organization or campus cannot be accessed by another.
+- **Explicit Question Ownership:** Questions are stored once and reused via references, preventing unnecessary duplication.
+- **Immutable Snapshots:** Once an exam is published, its content is snapshotted. Future edits to a question will never alter historical exams.
+- **Versioning:** Full revision history for both questions and exams.
 
-## 🛠️ Tech Stack
-- **Frontend:** React (via Vite), HTML/CSS, JavaScript
-- **Backend:** Python, FastAPI, Uvicorn
-- **Database:** PostgreSQL
-- **Database Driver:** `psycopg` (v3)
-- **Package Managers:** `npm` (Frontend), `uv` (Backend)
+## 🛠️ Full Tech Stack
+
+### Backend & Database
+*   **Language:** Python 3.10+
+*   **Web Framework:** FastAPI
+*   **ASGI Server:** Uvicorn
+*   **Database:** PostgreSQL
+*   **ORM:** SQLAlchemy 2.x
+*   **Database Migrations:** Alembic (alongside our custom `db_deploy` GitHub migration tool)
+*   **Authentication:** Argon2id (Password Hashing), JWT (Access/Refresh tokens)
+
+### Frontend
+*   **Framework:** React
+*   **Language:** TypeScript
+*   **Build Tool:** Vite
+*   **Routing:** React Router
+*   **API State Management:** TanStack Query (React Query)
+*   **Local State:** Zustand
+*   **Forms & Validation:** React Hook Form + Zod
+*   **Styling:** Tailwind CSS
+*   **Rich Text & Math:** Tiptap (Rich Text), KaTeX/MathJax (Mathematics)
+*   **Charts & PDF:** Recharts (Analytics), PDF.js (Preview)
+
+### Infrastructure & DevOps
+*   **Caching & Background Jobs:** Redis + Celery
+*   **File Storage:** S3-Compatible Object Storage (e.g., AWS S3, MinIO)
+*   **Containerization:** Docker
+*   **CI/CD:** GitHub Actions
+*   **Monitoring & Error Tracking:** Prometheus, Grafana, Sentry
+
+---
+
+## 🗄️ Database Architecture Highlights
+
+### 1. Central Status & Account Normalization
+No arbitrary `VARCHAR` statuses in business tables. All statuses (Active, Inactive, Draft, Published, etc.) reference a central `statuses` table (`sta_id`). Account types (Individual, Organisation, Platform) reference a central `account_types` table (`act_id`).
+
+### 2. Question Bank Ownership (4 Levels)
+Questions are strictly owned and access is enforced via FastAPI and PostgreSQL Row-Level Security (where applicable):
+1.  **Platform Question Bank:** Managed by SaaS Admin (Read-only for authorized customers).
+2.  **Organisation Question Bank:** Managed by Head Office.
+3.  **Campus Question Bank:** Managed by Campus Admins.
+4.  **Individual Question Bank:** Managed by Independent Teachers.
+
+### 3. JSONB for Flexible Content
+Question content (rich text, math equations, images, options) is stored in a `JSONB` column (`question_revisions`). This allows the system to support MCQs, True/False, Short Answer, and Matching questions without schema changes for every new format.
+
+### 4. Exam Versioning & Snapshots
+The `exam_versions` table stores the logical paper, while `exam_version_questions` stores a **snapshot** of the question text and answer key at the time of publishing. This guarantees historical integrity.
+
+---
 
 ## 📂 Project Structure
+
 ```text
 AOQPGS/
 │
-├── frontend/               # React Frontend (Vite)
-│   ├── src/
-│   │   ├── App.jsx         # Main UI logic
-│   │   └── App.css         # Styling
-│   └── package.json        
+├── frontend/               # React + TypeScript Frontend
 │
-├── db_deploy/              # Database Engineering Tool
-│   └── deploy.py           # Fetches SQL from GitHub & deploys
+├── backend/                # FastAPI Application
+│   ├── api/                # API Routers (v1)
+│   ├── core/               # Config, Security, Auth logic
+│   ├── models/             # SQLAlchemy ORM Models
+│   ├── schemas/            # Pydantic Schemas
+│   ├── services/           # Business Logic
+│   └── main.py             # FastAPI Entrypoint
+│
+├── db_deploy/              # Custom GitHub SQL Migration Tool
+│   └── deploy.py           
 │
 ├── sql/                    # SQL Scripts
 │   ├── alters/             # Schema changes (run once)
@@ -43,14 +93,24 @@ AOQPGS/
 │   │       ├── 001_schema.sql
 │   │       └── 002_seed_data.sql
 │   └── stored_procedures/  # Business logic (run every deployment)
-│       └── sp_manage_questions.sql
 │
-├── main.py                 # FastAPI Application & API routes
-├── config.py               # Database credentials (ignored by Git)
-├── config.example.py       # Template for database credentials
+├── docs/                   # Documentation
+│   └── SAD_v1.0.md         # System Architecture Document
+│
 ├── requirements.txt        # Python dependencies
-└── pyproject.toml          # uv project configuration
+└── pyproject.toml          # uv configuration
 ```
+
+### THE PROJECT FOLLOWS A PHASED ARCHITECTURAL APPROACH:
+*   **Phase 1 - Foundation:** Project setup, FastAPI, React, PostgreSQL, Authentication, Account Types, Statuses.
+*   **Phase 2 - Organisation Management:** Organisation registration, campuses, invitations, memberships, roles/permissions.
+*   **Phase 3 - Academic Structure:** Subjects, Classes, Chapters, Topics.
+*   **Phase 4 - Question Bank:** Platform, Organisation, Campus, and Individual banks. Question Editor, Revisions, Media, Sharing.
+*   **Phase 5 - Examination Builder:** Exam creation, mixed-source selection, versioning, PDF generation.
+*   **Phase 6 - Student Management:** Registration, assignment, attempts, submission.
+*   **Phase 7 - Results & Reporting:** Automatic/Manual grading, student and campus reports.
+*   **Phase 8 - Production Readiness:** Security review, performance tuning, backups, deployment.
+*   **Phase 9 - Future Enhancements:** AI question generation, OCR, LMS integration, billing.
 
 ## 💻 How to Run Locally
 ### 1️⃣ Prerequisites
