@@ -6,6 +6,8 @@ env/
 
 # Environment Variables / Secrets
 config.py
+db_deploy/config.py
+.env
 
 # OS Files
 .DS_Store
