@@ -17,8 +17,10 @@ GITHUB_BRANCH = "dev"
 # ----------------------------
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SQL_DIR = os.path.join(BASE_DIR, 'sql')
 TEMP_DIR = os.path.join(BASE_DIR, 'db_deploy', 'temp_fetch')
 ALTERS_DIR = os.path.join(TEMP_DIR, 'sql', 'alters')
+UTILS_DIR = os.path.join(SQL_DIR, 'utilities')
 PROCS_DIR = os.path.join(TEMP_DIR, 'sql', 'stored_procedures')
 
 def fetch_from_github():
@@ -41,12 +43,13 @@ def fetch_from_github():
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(TEMP_DIR)
         
-        # GitHub extracts into a folder named like "AOQPGS-dev"
-        # We need to find that folder and point our paths to the SQL folder inside it
-        extracted_folder = os.path.join(TEMP_DIR, f"AOQPGS-{GITHUB_BRANCH}")
+        # GitHub extracts into a folder named like "PaperPilot-{GITHUB_BRANCH}"
+        extracted_folder = os.path.join(TEMP_DIR, f"PaperPilot-{GITHUB_BRANCH}")
         
-        global ALTERS_DIR, PROCS_DIR
+        # UPDATE ALL THREE PATHS TO THE TEMP FOLDER
+        global ALTERS_DIR, UTILS_DIR, PROCS_DIR
         ALTERS_DIR = os.path.join(extracted_folder, 'sql', 'alters')
+        UTILS_DIR = os.path.join(extracted_folder, 'sql', 'utilities') # <-- ADDED THIS
         PROCS_DIR = os.path.join(extracted_folder, 'sql', 'stored_procedures')
         
         print("✅ Fetch successful.")
@@ -120,6 +123,23 @@ def run_alter_folders(conn, cursor):
                 print(f"❌ Error executing {file}: {e}")
                 sys.exit(1)
 
+def run_utilities(conn, cursor):
+    if not os.path.exists(UTILS_DIR): return
+    files = sorted([f for f in os.listdir(UTILS_DIR) if f.endswith('.sql')])
+    if not files: return
+
+    print("\n🛠️ Updating Utility Functions...")
+    for filename in files:
+        print(f"   -> Executing {filename}...")
+        filepath = os.path.join(UTILS_DIR, filename)
+        with open(filepath, 'r', encoding='utf-8') as f:
+            try:
+                cursor.execute(f.read())
+            except Exception as e:
+                conn.rollback()
+                print(f"❌ Error in utility {filename}: {e}")
+                sys.exit(1)
+
 def run_stored_procedures(conn, cursor):
     if not os.path.exists(PROCS_DIR): return
     files = sorted([f for f in os.listdir(PROCS_DIR) if f.endswith('.sql')])
@@ -149,12 +169,18 @@ def main():
         conn.autocommit = False 
         cursor = conn.cursor()
 
+        # 1. Setup Tracking Table
         setup_tracking_table(cursor)
         conn.commit()
 
+        # 2. Run Alters (Only once per folder)
         run_alter_folders(conn, cursor)
+
+        # 3. Run Utilities (Every time, before procs)
+        run_utilities(conn, cursor)
+
+        # 4. Run Stored Procedures (Every time)
         run_stored_procedures(conn, cursor)
-        conn.commit()
 
         print("\n🎉 Deployment completed successfully!")
         cursor.close()
