@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import get_migration_connection_string
 
 # --- GITHUB CONFIGURATION ---
-GITHUB_REPO = "ismail309/AOQPGS"
+GITHUB_REPO = "ismail309/paperpilot"
 GITHUB_BRANCH = "dev"
 # ----------------------------
 
@@ -27,29 +27,26 @@ def fetch_from_github():
     """Downloads the latest SQL folder from the dev branch on GitHub."""
     print(f"⬇️ Fetching latest SQL scripts from {GITHUB_REPO} ({GITHUB_BRANCH} branch)...")
     
-    # Clean up old temp folder if it exists
     if os.path.exists(TEMP_DIR):
         shutil.rmtree(TEMP_DIR)
     os.makedirs(TEMP_DIR)
 
-    # GitHub API URL to download the repo as a zip file
     zip_url = f"https://github.com/{GITHUB_REPO}/archive/refs/heads/{GITHUB_BRANCH}.zip"
     zip_path = os.path.join(TEMP_DIR, "repo.zip")
 
     try:
         urllib.request.urlretrieve(zip_url, zip_path)
         
-        # Extract the zip file
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(TEMP_DIR)
         
-        # GitHub extracts into a folder named like "PaperPilot-{GITHUB_BRANCH}"
-        extracted_folder = os.path.join(TEMP_DIR, f"PaperPilot-{GITHUB_BRANCH}")
+        # DYNAMIC: Extract just the repo name (e.g., "ismail309/paperpilot" -> "paperpilot")
+        repo_name = GITHUB_REPO.split('/')[-1]
+        extracted_folder = os.path.join(TEMP_DIR, f"{repo_name}-{GITHUB_BRANCH}")
         
-        # UPDATE ALL THREE PATHS TO THE TEMP FOLDER
         global ALTERS_DIR, UTILS_DIR, PROCS_DIR
         ALTERS_DIR = os.path.join(extracted_folder, 'sql', 'alters')
-        UTILS_DIR = os.path.join(extracted_folder, 'sql', 'utilities') # <-- ADDED THIS
+        UTILS_DIR = os.path.join(extracted_folder, 'sql', 'utilities')
         PROCS_DIR = os.path.join(extracted_folder, 'sql', 'stored_procedures')
         
         print("✅ Fetch successful.")
