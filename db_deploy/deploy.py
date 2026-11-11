@@ -9,7 +9,7 @@ import shutil
 
 # Import your database credentials
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import get_connection_string
+from config import get_migration_connection_string
 
 # --- GITHUB CONFIGURATION ---
 GITHUB_REPO = "ismail309/AOQPGS"
@@ -58,7 +58,7 @@ def fetch_from_github():
         sys.exit(1)
 
 def get_db_connection():
-    return psycopg2.connect(get_connection_string())
+    return psycopg2.connect(get_migration_connection_string())
 
 def setup_tracking_table(cursor):
     cursor.execute('''
@@ -158,7 +158,7 @@ def run_stored_procedures(conn, cursor):
                 sys.exit(1)
 
 def main():
-    print("=== AOQPGS DB Deployment ===")
+    print("=== PAPERPILOT DB Deployment ===")
     
     # 1. Fetch latest code from GitHub Dev branch
     fetch_from_github()
