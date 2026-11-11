@@ -26,16 +26,15 @@ ON CONFLICT DO NOTHING;
 -- ==========================================
 
 -- Add Ali and Sara to the Gulberg Campus
-INSERT INTO campus_members (cam_id, usr_id, sta_id) VALUES
-((SELECT cam_id FROM campuses WHERE cam_name = 'PGC Gulberg Campus'), (SELECT usr_id FROM users WHERE email = 'ali@pgc.edu.pk'), 1),
-((SELECT cam_id FROM campuses WHERE cam_name = 'PGC Gulberg Campus'), (SELECT usr_id FROM users WHERE email = 'sara@pgc.edu.pk'), 1)
+INSERT INTO campus_members (head_off_id, cam_id, usr_id, sta_id) VALUES
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), (SELECT cam_id FROM campuses WHERE cam_name = 'PGC Gulberg Campus'), (SELECT usr_id FROM users WHERE email = 'ali@pgc.edu.pk'), 1),
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), (SELECT cam_id FROM campuses WHERE cam_name = 'PGC Gulberg Campus'), (SELECT usr_id FROM users WHERE email = 'sara@pgc.edu.pk'), 1)
 ON CONFLICT DO NOTHING;
 
 -- Add Usman to the Multan Campus
-INSERT INTO campus_members (cam_id, usr_id, sta_id) VALUES
-((SELECT cam_id FROM campuses WHERE cam_name = 'PGC Multan Campus'), (SELECT usr_id FROM users WHERE email = 'usman@pgc.edu.pk'), 1)
+INSERT INTO campus_members (head_off_id, cam_id, usr_id, sta_id) VALUES
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), (SELECT cam_id FROM campuses WHERE cam_name = 'PGC Multan Campus'), (SELECT usr_id FROM users WHERE email = 'usman@pgc.edu.pk'), 1)
 ON CONFLICT DO NOTHING;
-
 -- ==========================================
 -- 4. ASSIGN ROLES (The Multi-Tenant Magic)
 -- ==========================================
