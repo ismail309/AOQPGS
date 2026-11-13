@@ -34,11 +34,11 @@ ON CONFLICT DO NOTHING;
 -- SEED DATA: HEAD OFFICES
 -- ==========================================
 INSERT INTO head_offices (head_off_name, email, phone_no, city, sta_id) VALUES
-('Punjab Group of Colleges', 'info@pgc.edu.pk', '042-111-111-222', 'Lahore', 1),
-('Beaconhouse School System', 'contact@beaconhouse.edu.pk', '042-111-232-232', 'Lahore', 1),
-('The City School', 'info@thecityschool.edu.pk', '021-111-243-243', 'Karachi', 1),
-('Roots Millennium Schools', 'info@rootsinternational.edu.pk', '051-111-766-877', 'Islamabad', 1),
-('National Grammar School', 'info@ngs.edu.pk', '042-3577-8900', 'Lahore', 1);
+('Punjab Group of Colleges', 'info@pgc.edu.pk', '042-111-111-222', 'Lahore', fn_get_status_id('general', 'active')),
+('Beaconhouse School System', 'contact@beaconhouse.edu.pk', '042-111-232-232', 'Lahore', fn_get_status_id('general', 'active')),
+('The City School', 'info@thecityschool.edu.pk', '021-111-243-243', 'Karachi', fn_get_status_id('general', 'active')),
+('Roots Millennium Schools', 'info@rootsinternational.edu.pk', '051-111-766-877', 'Islamabad', fn_get_status_id('general', 'active')),
+('National Grammar School', 'info@ngs.edu.pk', '042-3577-8900', 'Lahore', fn_get_status_id('general', 'active'));
 
 -- ==========================================
 -- SEED DATA: CAMPUSES
@@ -46,24 +46,24 @@ INSERT INTO head_offices (head_off_name, email, phone_no, city, sta_id) VALUES
 
 -- Punjab Group Campuses
 INSERT INTO campuses (head_off_id, cam_name, city, sta_id) VALUES
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), 'PGC Gulberg Campus', 'Lahore', 1),
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), 'PGC Multan Campus', 'Multan', 1),
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), 'PGC Faisalabad Campus', 'Faisalabad', 1);
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), 'PGC Gulberg Campus', 'Lahore', fn_get_status_id('general', 'active')),
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), 'PGC Multan Campus', 'Multan', fn_get_status_id('general', 'active')),
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Punjab Group of Colleges'), 'PGC Faisalabad Campus', 'Faisalabad', fn_get_status_id('general', 'active'));
 
 -- Beaconhouse Campuses
 INSERT INTO campuses (head_off_id, cam_name, city, sta_id) VALUES
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Beaconhouse School System'), 'BSS Johar Town Campus', 'Lahore', 1),
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Beaconhouse School System'), 'BSS DHA Campus', 'Lahore', 1);
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Beaconhouse School System'), 'BSS Johar Town Campus', 'Lahore', fn_get_status_id('general', 'active')),
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Beaconhouse School System'), 'BSS DHA Campus', 'Lahore', fn_get_status_id('general', 'active'));
 
 -- The City School Campuses
 INSERT INTO campuses (head_off_id, cam_name, city, sta_id) VALUES
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'The City School'), 'TCS Clifton Campus', 'Karachi', 1),
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'The City School'), 'TCS DHA Campus', 'Karachi', 1);
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'The City School'), 'TCS Clifton Campus', 'Karachi', fn_get_status_id('general', 'active')),
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'The City School'), 'TCS DHA Campus', 'Karachi', fn_get_status_id('general', 'active'));
 
 -- Roots Millennium Campuses
 INSERT INTO campuses (head_off_id, cam_name, city, sta_id) VALUES
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Roots Millennium Schools'), 'Roots F-11 Campus', 'Islamabad', 1);
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'Roots Millennium Schools'), 'Roots F-11 Campus', 'Islamabad', fn_get_status_id('general', 'active'));
 
 -- National Grammar School Campuses
 INSERT INTO campuses (head_off_id, cam_name, city, sta_id) VALUES
-((SELECT head_off_id FROM head_offices WHERE head_off_name = 'National Grammar School'), 'NGS Main Campus', 'Lahore', 1);
+((SELECT head_off_id FROM head_offices WHERE head_off_name = 'National Grammar School'), 'NGS Main Campus', 'Lahore', fn_get_status_id('general', 'active'));
