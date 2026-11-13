@@ -58,6 +58,10 @@ def get_db_connection():
     return psycopg.connect(get_migration_connection_string())
 
 def setup_tracking_table(cursor):
+    """Creates the alters table and ensures the public schema exists."""
+    # THIS IS THE CRITICAL LINE
+    cursor.execute("CREATE SCHEMA IF NOT EXISTS public;")
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS alters (
             alt_id SERIAL PRIMARY KEY,
