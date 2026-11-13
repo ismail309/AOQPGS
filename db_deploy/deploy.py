@@ -174,12 +174,12 @@ def main():
         setup_tracking_table(cursor)
         conn.commit()
 
-        # 2. Run Alters (Only once per folder)
-        run_alter_folders(conn, cursor)
-
-        # 3. Run Utilities (Every time, before procs)
+        # 2. Run Utilities (Every time, before procedures and alters)
         run_utilities(conn, cursor)
 
+        # 3. Run Alters (Only once per folder)
+        run_alter_folders(conn, cursor)
+        
         # 4. Run Stored Procedures (Every time)
         run_stored_procedures(conn, cursor)
 
