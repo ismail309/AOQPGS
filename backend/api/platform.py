@@ -79,10 +79,16 @@ def get_users():
     conn = psycopg.connect(get_connection_string())
     with conn.cursor(row_factory=dict_row) as cursor:
         cursor.execute("""
-            SELECT u.usr_id, u.first_name, u.last_name, u.email, r.rol_name 
+            SELECT 
+                u.usr_id, 
+                u.first_name, 
+                u.last_name, 
+                u.email, 
+                STRING_AGG(r.rol_name, ', ') AS roles
             FROM users u
             LEFT JOIN user_roles ur ON u.usr_id = ur.usr_id
             LEFT JOIN roles r ON ur.rol_id = r.rol_id
+            GROUP BY u.usr_id, u.first_name, u.last_name, u.email
             ORDER BY u.usr_id DESC
         """)
         return cursor.fetchall()
@@ -119,10 +125,11 @@ def create_user(data: UserCreate):
 
             conn.commit()
             return {"message": "User created", "usr_id": new_usr_id}
-    except HTTPException as he:
-        raise he
+    except psycopg.errors.UniqueViolation: # <-- CATCH UNIQUE ERROR
+            conn.rollback()
+            raise HTTPException(status_code=400, detail="User with this email already exists.")
     except Exception as e:
-        conn.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
     finally:
-        conn.close()
+            conn.close()

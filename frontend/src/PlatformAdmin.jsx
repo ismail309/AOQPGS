@@ -370,7 +370,7 @@ export default function PlatformAdmin() {
                     </td>
                     <td className="p-4">{u.email}</td>
                     <td className="p-4 capitalize">
-                      {u.rol_name?.replace("_", " ")}
+                      {u.roles ? u.roles.replace(/_/g, " ") : "No Role"}
                     </td>
                   </tr>
                 ))}
